@@ -28,21 +28,27 @@ from datetime import datetime
 from glob import glob
 from time import sleep
 from mutagen.mp3 import MP3
-from winsound import Beep
 from Levenshtein import ratio
 from difflib import SequenceMatcher
 from youtube_search import YoutubeSearch
 from .Custom_Modules import Modules
+#from tempfile import TemporaryFile
 
 
-root_dir = os.getcwd()
-sys.path.insert(0, root_dir)
+if platform.system() == 'Linux':
+    pass
+elif platform.system() == 'Windows':
+    from Utils.Stream import Gaana
+    from winsound import Beep
+
+root_dir = os.path.realpath('Voice-Assistant')
+if root_dir.split(os.sep)[-2] == 'Voice-Assistant':
+    root_dir = os.sep.join(root_dir.split(os.sep)[:-1])
 utils_dir = root_dir + os.sep + 'Utils' + os.sep
 assets_dir = root_dir + os.sep + 'assets' + os.sep
 datasets_dir = assets_dir + 'datasets' + os.sep
 cache_dir = assets_dir + 'cache' + os.sep
-tmp_dir = cache_dir + 'tmp_files' + os.sep
-
+tmp_dir = cache_dir + 'tmp_dir' + os.sep
 
 class VA:
     def __init__(self):
@@ -72,7 +78,11 @@ class VA:
             # print(f'EXE already copied to {tmp_dir}')
 
     def _speak(self, text):
+        #os.system(f'espeak {text}')
         tts = gTTS(text=text, lang='en')  # TODO: Taking too much time saving to a file and reading out
+        #f = TemporaryFile()
+        #tts.write_to_fp(f)
+        #f.close()
         filename = 'voice.mp3'
         tts.save(filename)
         playsound(filename)
@@ -100,7 +110,7 @@ class VA:
         ## TODO: Create 2 threads (one for handling the mic voice commands) && (amother will wait for its expire)
         r = sr.Recognizer()
         with sr.Microphone() as source:
-            r.adjust_for_ambient_noise(source)  # Ambient Noise Cancellation; use only when in a noisy background
+            #r.adjust_for_ambient_noise(source)  # Ambient Noise Cancellation; use only when in a noisy background
             '''
             Intended to calibrate the energy threshold with the ambient energy level. Should be used on periods of audio without speech - will stop early if any speech is detected.
             '''
@@ -337,7 +347,7 @@ class _Youtube_mp3(VA):  # Download songs from youtube and create a mp3 file of 
         return cleaned_name
 
     def __download_mp3(self, song_search, url):  # (in folder 'assets\cache')
-        # TODO: - Create a 'Settings.py' file... from there get the value of cache size
+        # TODO: - Create a 'config.py' file... from there get the value of cache size
         #  1. Restrict Cache storage total size ; replace the oldest (first) saved file with the latest search if cache full ; FIFO (queue)
         os.chdir(tmp_dir)
         try:

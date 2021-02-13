@@ -1,0 +1,2 @@
+# AUDIO_PLAYER
+CACHE_SIZE = 1024 # in Mb

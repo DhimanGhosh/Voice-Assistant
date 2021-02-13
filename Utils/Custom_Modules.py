@@ -2,18 +2,15 @@ from difflib import SequenceMatcher
 import requests
 from bs4 import BeautifulSoup
 import re
-import Settings
+import config
 
 
 class Modules:
     def __init__(self):
-        self.__settings = Settings
+        pass
 
     def get_app_settings(self, key_word):
-        return self.__settings.parameters[key_word.upper()]
-
-    def set_default_param_as_user(self):
-        self.__settings.user_parameters = self.__settings.parameters
+        return config.key_word
 
     def similarity(self, a, b):
         return SequenceMatcher(None, a, b).ratio()
@@ -71,3 +68,12 @@ class Modules:
                 if word.lower() in sentence.lower():
                     return True
         return False
+
+	def freq_beep(self, freq, dur=300):
+		'''
+		Objective: Create beep tone based on OS w.r.t passed frequency and duration
+		'''
+		if platform.system() == 'Windows':
+			winsound.Beep(freq, dur)
+		elif platform.system() == 'Linux':
+			os.system('play -nq -t alsa synth {} sine {}'.format(dur/1000, freq))
